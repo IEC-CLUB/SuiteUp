@@ -27,26 +27,72 @@
     font-family: 'Inter', sans-serif;
     background: var(--bg-deep);
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    position: relative;
   }
 
-  /* Professional Blueprint Grid Background */
-  body::before {
+  /* ============ TOP-LEVEL SPLIT LAYOUT ============ */
+  .app-layout {
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  /* LEFT: everything the slideshow used to own, now confined to this panel */
+  .left-panel {
+    position: relative;
+    flex: 1 1 60%;
+    min-width: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    /* lets .content-grid / .hero query THIS panel's width, not the window's */
+    container-type: inline-size;
+    container-name: leftpanel;
+  }
+
+  /* RIGHT: fixed video panel, sized to fit the video perfectly */
+  .video-panel {
+    position: relative;
+    flex: 0 0 40%;
+    max-width: 640px;
+    min-width: 300px;
+    height: 100vh;
+    background: #000;
+    border-left: 1px solid var(--border-glow);
+    box-shadow: -12px 0 40px rgba(2, 11, 46, 0.5);
+    overflow: hidden;
+  }
+  .video-panel video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .video-panel::after {
+    /* subtle glow to tie it to the blueprint theme */
     content: '';
-    position: fixed;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 60px rgba(2, 11, 46, 0.6);
+  }
+
+  /* Professional Blueprint Grid Background (confined to left panel) */
+  .left-panel::before {
+    content: '';
+    position: absolute;
     inset: 0;
     z-index: 0;
-    background-image: 
+    background-image:
       linear-gradient(rgba(91, 143, 255, 0.04) 1px, transparent 1px),
       linear-gradient(90deg, rgba(91, 143, 255, 0.04) 1px, transparent 1px);
     background-size: 40px 40px;
     pointer-events: none;
   }
-  body::after {
+  .left-panel::after {
     content: '';
-    position: fixed;
+    position: absolute;
     inset: 0;
     z-index: 0;
     background: radial-gradient(ellipse at top, rgba(30, 79, 199, 0.15) 0%, transparent 60%);
@@ -55,7 +101,7 @@
 
   /* Floating Tech Snow */
   .snow-container {
-    position: fixed;
+    position: absolute;
     inset: 0;
     z-index: 1;
     pointer-events: none;
@@ -76,9 +122,9 @@
     100% { transform: translateY(110vh) translateX(40px) rotate(360deg); opacity: 0; }
   }
 
-  /* Progress Bar */
+  /* Progress Bar (now scoped to the left panel) */
   .progress-bar-wrap {
-    position: fixed;
+    position: absolute;
     top: 0; left: 0; right: 0;
     height: 3px;
     background: rgba(255,255,255,0.05);
@@ -94,8 +140,8 @@
 
   /* Slide Navigation Dots */
   .dots {
-    position: fixed;
-    bottom: 24px;
+    position: absolute;
+    bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -128,6 +174,7 @@
     flex: 1;
     width: 100%;
     z-index: 10;
+    min-height: 0;
   }
 
   .slide {
@@ -138,7 +185,7 @@
     pointer-events: none;
     display: flex;
     flex-direction: column;
-    padding: 36px 48px 60px 48px;
+    padding: 28px 32px 52px 32px;
   }
   .slide.active {
     opacity: 1;
@@ -150,9 +197,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-bottom: 20px;
     border-bottom: 1px solid rgba(91, 143, 255, 0.15);
-    margin-bottom: 28px;
+    margin-bottom: 22px;
     opacity: 0;
     transform: translateY(-20px);
   }
@@ -163,38 +212,38 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  .hero-left { display: flex; flex-direction: column; gap: 12px; }
-  
+  .hero-left { display: flex; flex-direction: column; gap: 10px; }
+
   .title-tag {
     display: inline-flex;
     align-items: center;
     gap: 12px;
     background: linear-gradient(135deg, var(--blue-deep), var(--blue-c4));
-    padding: 8px 18px;
+    padding: 7px 16px;
     border-radius: 8px;
     width: fit-content;
     box-shadow: 0 8px 20px rgba(30, 79, 199, 0.3), inset 0 1px 0 rgba(255,255,255,0.1);
   }
-  .title-tag span { font-size: 0.8rem; font-weight: 700; color: var(--blue-soft); text-transform: uppercase; letter-spacing: 2px; }
-  
+  .title-tag span { font-size: 0.75rem; font-weight: 700; color: var(--blue-soft); text-transform: uppercase; letter-spacing: 2px; }
+
   .hero h1 {
-    font-size: 3.2rem;
+    font-size: 2.5rem;
     font-weight: 900;
     color: #fff;
-    letter-spacing: -1.5px;
+    letter-spacing: -1.2px;
     line-height: 1;
   }
 
   .hero-right {
     display: flex;
     align-items: center;
-    gap: 24px;
-    max-width: 550px;
+    gap: 18px;
+    max-width: 420px;
   }
   .hero-right p {
     color: var(--text-soft);
-    font-size: 1.05rem;
-    line-height: 1.6;
+    font-size: 0.95rem;
+    line-height: 1.55;
     text-align: right;
   }
   .hero-right p strong {
@@ -202,7 +251,7 @@
     font-weight: 700;
   }
   .hero-icon {
-    font-size: 3.5rem;
+    font-size: 2.6rem;
     filter: drop-shadow(0 0 16px rgba(91, 143, 255, 0.6));
     animation: float-icon 4s ease-in-out infinite;
   }
@@ -215,7 +264,7 @@
   .content-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 24px;
+    gap: 18px;
     flex: 1;
     min-height: 0;
   }
@@ -225,7 +274,7 @@
     background: linear-gradient(180deg, rgba(10, 28, 100, 0.7) 0%, rgba(7, 20, 96, 0.4) 100%);
     border: 1px solid var(--border-glow);
     border-radius: 16px;
-    padding: 28px;
+    padding: 22px;
     display: flex;
     flex-direction: column;
     position: relative;
@@ -244,9 +293,9 @@
 
   .card-num {
     position: absolute;
-    top: 10px;
-    right: 20px;
-    font-size: 5rem;
+    top: 8px;
+    right: 16px;
+    font-size: 4rem;
     font-weight: 900;
     color: rgba(91, 143, 255, 0.03);
     line-height: 1;
@@ -256,20 +305,20 @@
   .card-header {
     display: flex;
     align-items: center;
-    gap: 14px;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
     border-bottom: 1px solid rgba(91, 143, 255, 0.1);
   }
   .card-header-icon {
-    width: 36px; height: 36px;
+    width: 32px; height: 32px;
     background: rgba(91, 143, 255, 0.1);
     border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
   .card-header h2 {
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 800;
     color: #fff;
     text-transform: uppercase;
@@ -280,30 +329,27 @@
   .list-container {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 20px;
     position: relative;
     flex: 1;
-    /* Removed padding-left to ensure perfect center alignment */
   }
-  
-  /* Static Timeline Line */
+
   .list-container::before {
     content: '';
     position: absolute;
-    left: 18px; /* Half of 36px icon width */
-    top: 18px;
-    bottom: 18px;
+    left: 16px;
+    top: 16px;
+    bottom: 16px;
     width: 1px;
     background: rgba(91, 143, 255, 0.15);
     z-index: 1;
-    transform: translateX(-50%); /* Perfectly center the 1px line */
+    transform: translateX(-50%);
   }
 
-  /* Moving Progress Light Pulse */
   .list-container::after {
     content: '';
     position: absolute;
-    left: 18px; /* Half of 36px icon width */
+    left: 16px;
     width: 4px;
     height: 40px;
     background: linear-gradient(to bottom, transparent, var(--blue-bright), transparent);
@@ -313,7 +359,7 @@
     top: 0;
     opacity: 0;
     animation: scan-timeline 4s cubic-bezier(.45,.05,.55,.95) infinite;
-    transform: translateX(-50%); /* Perfectly center the 4px moving light */
+    transform: translateX(-50%);
   }
   @keyframes scan-timeline {
     0%   { top: 0%; opacity: 0; }
@@ -322,7 +368,6 @@
     100% { top: 100%; opacity: 0; }
   }
 
-  /* Stagger the start time of the pulse for each card */
   .slide.active .card:nth-child(1) .list-container::after { animation-delay: 0.5s; }
   .slide.active .card:nth-child(2) .list-container::after { animation-delay: 1.5s; }
   .slide.active .card:nth-child(3) .list-container::after { animation-delay: 2.5s; }
@@ -330,25 +375,24 @@
   .list-item {
     display: flex;
     align-items: flex-start;
-    gap: 16px;
+    gap: 14px;
     position: relative;
     z-index: 3;
   }
 
   .list-icon {
-    width: 36px; height: 36px;
+    width: 32px; height: 32px;
     background: var(--bg-deep);
     border: 1px solid var(--blue-deep);
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 1rem;
+    font-size: 0.9rem;
     flex-shrink: 0;
     box-shadow: 0 0 0 4px rgba(2, 11, 46, 1);
     transition: all 0.3s ease;
     animation: icon-dim 4s cubic-bezier(.45,.05,.55,.95) infinite;
   }
-  
-  /* Flashing Icons synced with the passing light */
+
   @keyframes icon-dim {
     0%, 100% { border-color: var(--blue-deep); box-shadow: 0 0 0 4px rgba(2, 11, 46, 1); }
     10%, 90% { border-color: var(--blue-bright); box-shadow: 0 0 0 4px rgba(2, 11, 46, 1), 0 0 15px var(--blue-bright); }
@@ -360,9 +404,9 @@
   .list-item:nth-child(4) .list-icon { animation-delay: 2.4s; }
 
   .list-content {
-    padding-top: 6px;
+    padding-top: 5px;
     color: var(--text-soft);
-    font-size: 0.95rem;
+    font-size: 0.88rem;
     line-height: 1.5;
   }
   .list-content strong {
@@ -370,7 +414,7 @@
     font-weight: 700;
     display: block;
     margin-bottom: 2px;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
@@ -381,206 +425,252 @@
     font-weight: 800;
   }
 
-  @media (max-width: 1100px) {
-    .hero h1 { font-size: 2.4rem; }
-    .hero-right p { font-size: 0.95rem; }
-    .content-grid { grid-template-columns: 1fr; gap: 16px; overflow-y: auto; }
+  /* ============ RESPONSIVE: left panel narrows before the window does,
+     because it now shares screen real estate with the video ============ */
+  @container leftpanel (max-width: 900px) {
+    .content-grid { grid-template-columns: 1fr; overflow-y: auto; gap: 14px; }
+    .hero h1 { font-size: 1.9rem; }
+    .hero-right { max-width: 320px; }
+    .hero-right p { font-size: 0.85rem; }
+  }
+  @container leftpanel (max-width: 560px) {
+    .hero-right { display: none; }
+    .hero h1 { font-size: 1.6rem; }
+    .slide { padding: 20px 18px 46px 18px; }
+  }
+
+  /* ============ RESPONSIVE: whole layout stacks on narrow / short screens ============ */
+  @media (max-width: 860px), (max-aspect-ratio: 3/4) {
+    .app-layout { flex-direction: column; }
+    .left-panel { flex: 1 1 58vh; height: 58vh; width: 100%; }
+    .video-panel {
+      flex: 1 1 42vh;
+      height: 42vh;
+      width: 100%;
+      max-width: none;
+      min-width: 0;
+      border-left: none;
+      border-top: 1px solid var(--border-glow);
+      box-shadow: 0 -12px 40px rgba(2, 11, 46, 0.5);
+    }
   }
 </style>
 </head>
 <body>
 
-<!-- Floating Tech Snow Background -->
-<div class="snow-container" id="snowContainer"></div>
+<div class="app-layout">
 
-<div class="progress-bar-wrap">
-  <div class="progress-bar" id="progressBar"></div>
-</div>
+  <!-- ============ LEFT: SLIDESHOW ============ -->
+  <div class="left-panel">
 
-<div class="slides">
+    <div class="snow-container" id="snowContainer"></div>
 
-  <!-- SLIDE 1: Outsource -->
-  <div class="slide active" id="slide-0">
-    
-    <div class="hero">
-      <div class="hero-left">
-        <div class="title-tag">
-          <span>Strategy 01</span>
-        </div>
-        <h1>Outsource</h1>
-      </div>
-      <div class="hero-right">
-        <p>Hiring an <strong>external partner</strong> to handle a portion of the workload instead of building an internal, in-house team.</p>
-        <div class="hero-icon">🤝</div>
-      </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progressBar"></div>
     </div>
 
-    <div class="content-grid">
-      
-      <!-- Card 1 -->
-      <div class="card">
-        <div class="card-num">01</div>
-        <div class="card-header">
-          <div class="card-header-icon">📍</div>
-          <h2>Where to Outsource?</h2>
+    <div class="slides">
+
+      <!-- SLIDE 1: Outsource -->
+      <div class="slide active" id="slide-0">
+
+        <div class="hero">
+          <div class="hero-left">
+            <div class="title-tag">
+              <span>Strategy 01</span>
+            </div>
+            <h1>Outsource</h1>
+          </div>
+          <div class="hero-right">
+            <p>Hiring an <strong>external partner</strong> to handle a portion of the workload instead of building an internal, in-house team.</p>
+            <div class="hero-icon">🤝</div>
+          </div>
         </div>
-        <div class="list-container">
-          <div class="list-item">
-            <div class="list-icon">📣</div>
-            <div class="list-content"><strong>Marketing</strong>Hiring an external ad agency.</div>
+
+        <div class="content-grid">
+
+          <!-- Card 1 -->
+          <div class="card">
+            <div class="card-num">01</div>
+            <div class="card-header">
+              <div class="card-header-icon">📍</div>
+              <h2>Where to Outsource?</h2>
+            </div>
+            <div class="list-container">
+              <div class="list-item">
+                <div class="list-icon">📣</div>
+                <div class="list-content"><strong>Marketing</strong>Hiring an external ad agency.</div>
+              </div>
+              <div class="list-item">
+                <div class="list-icon">🧮</div>
+                <div class="list-content"><strong>Finance</strong>Using outside accountants or auditors.</div>
+              </div>
+              <div class="list-item">
+                <div class="list-icon">💻</div>
+                <div class="list-content"><strong>Tech</strong>Hiring an external developer team.</div>
+              </div>
+              <div class="list-item">
+                <div class="list-icon">🚚</div>
+                <div class="list-content"><strong>Op & Log</strong>Using a 3PL (Third-Party Logistics) provider.</div>
+              </div>
+            </div>
           </div>
-          <div class="list-item">
-            <div class="list-icon">🧮</div>
-            <div class="list-content"><strong>Finance</strong>Using outside accountants or auditors.</div>
+
+          <!-- Card 2 -->
+          <div class="card">
+            <div class="card-num">02</div>
+            <div class="card-header">
+              <div class="card-header-icon">⏱️</div>
+              <h2>When to Outsource?</h2>
+            </div>
+            <div class="list-container">
+              <div class="list-item">
+                <div class="list-icon">⏰</div>
+                <div class="list-content"><strong>Time Constraints</strong>Your current team is heavily limited on time.</div>
+              </div>
+              <div class="list-item">
+                <div class="list-icon">⭐</div>
+                <div class="list-content"><strong>Lack of Expertise</strong>Your team lacks the specific, specialized expertise needed for the task.</div>
+              </div>
+            </div>
           </div>
-          <div class="list-item">
-            <div class="list-icon">💻</div>
-            <div class="list-content"><strong>Tech</strong>Hiring an external developer team.</div>
+
+          <!-- Card 3 -->
+          <div class="card">
+            <div class="card-num">03</div>
+            <div class="card-header">
+              <div class="card-header-icon">⚖️</div>
+              <h2>Tradeoffs</h2>
+            </div>
+            <div class="list-container">
+              <div class="list-item">
+                <div class="list-icon">1</div>
+                <div class="list-content"><strong>Ongoing Costs</strong>High ongoing service and rental fees.</div>
+              </div>
+              <div class="list-item">
+                <div class="list-icon">2</div>
+                <div class="list-content"><strong>Dependency Risk</strong>Your business becomes dependent on an outside partner's performance.</div>
+              </div>
+            </div>
           </div>
-          <div class="list-item">
-            <div class="list-icon">🚚</div>
-            <div class="list-content"><strong>Op & Log</strong>Using a 3PL (Third-Party Logistics) provider.</div>
-          </div>
+
         </div>
       </div>
 
-      <!-- Card 2 -->
-      <div class="card">
-        <div class="card-num">02</div>
-        <div class="card-header">
-          <div class="card-header-icon">⏱️</div>
-          <h2>When to Outsource?</h2>
-        </div>
-        <div class="list-container">
-          <div class="list-item">
-            <div class="list-icon">⏰</div>
-            <div class="list-content"><strong>Time Constraints</strong>Your current team is heavily limited on time.</div>
-          </div>
-          <div class="list-item">
-            <div class="list-icon">⭐</div>
-            <div class="list-content"><strong>Lack of Expertise</strong>Your team lacks the specific, specialized expertise needed for the task.</div>
-          </div>
-        </div>
-      </div>
+      <!-- SLIDE 2: Facility Upgrade -->
+      <div class="slide" id="slide-1">
 
-      <!-- Card 3 -->
-      <div class="card">
-        <div class="card-num">03</div>
-        <div class="card-header">
-          <div class="card-header-icon">⚖️</div>
-          <h2>Tradeoffs</h2>
+        <div class="hero">
+          <div class="hero-left">
+            <div class="title-tag">
+              <span>Strategy 02</span>
+            </div>
+            <h1>Facility Upgrade</h1>
+          </div>
+          <div class="hero-right">
+            <p>Investing money to <strong>improve your company's</strong> existing infrastructure, equipment, and operating systems.</p>
+            <div class="hero-icon">🏢</div>
+          </div>
         </div>
-        <div class="list-container">
-          <div class="list-item">
-            <div class="list-icon">1</div>
-            <div class="list-content"><strong>Ongoing Costs</strong>High ongoing service and rental fees.</div>
+
+        <div class="content-grid">
+
+          <!-- Card 1 -->
+          <div class="card">
+            <div class="card-num">01</div>
+            <div class="card-header">
+              <div class="card-header-icon">📍</div>
+              <h2>Where to Upgrade?</h2>
+            </div>
+            <div class="list-container">
+              <div class="list-item">
+                <div class="list-icon">📣</div>
+                <div class="list-content"><strong>Marketing</strong>Building an in-house production studio.</div>
+              </div>
+              <div class="list-item">
+                <div class="list-icon">🧮</div>
+                <div class="list-content"><strong>Finance</strong>Implementing an internal ERP software system.</div>
+              </div>
+              <div class="list-item">
+                <div class="list-icon">💻</div>
+                <div class="list-content"><strong>Tech</strong>Purchasing your own servers and IT infrastructure.</div>
+              </div>
+              <div class="list-item">
+                <div class="list-icon">🚚</div>
+                <div class="list-content"><strong>Op & Log</strong>Buying your own warehouses and delivery trucks.</div>
+              </div>
+            </div>
           </div>
-          <div class="list-item">
-            <div class="list-icon">2</div>
-            <div class="list-content"><strong>Dependency Risk</strong>Your business becomes dependent on an outside partner's performance.</div>
+
+          <!-- Card 2 -->
+          <div class="card">
+            <div class="card-num">02</div>
+            <div class="card-header">
+              <div class="card-header-icon">🎯</div>
+              <h2>When to Upgrade?</h2>
+            </div>
+            <div class="list-container">
+              <div class="list-item">
+                <div class="list-icon">📈</div>
+                <div class="list-content"><strong>Preparation for Scale</strong>Daily operations are stable, and you are actively preparing to expand.</div>
+              </div>
+              <div class="list-item">
+                <div class="list-icon">🛠️</div>
+                <div class="list-content"><strong>Long-Term Investment</strong>Making a long-term investment to increase overall operational efficiency.</div>
+              </div>
+            </div>
           </div>
+
+          <!-- Card 3 -->
+          <div class="card">
+            <div class="card-num">03</div>
+            <div class="card-header">
+              <div class="card-header-icon">⚠️</div>
+              <h2>Tradeoffs</h2>
+            </div>
+            <div class="list-container">
+              <div class="list-item">
+                <div class="list-icon">1</div>
+                <div class="list-content"><strong>Upfront Capital</strong>Massive upfront investment costs are required.</div>
+              </div>
+              <div class="list-item">
+                <div class="list-icon">2</div>
+                <div class="list-content"><strong>Financial Risk</strong>High financial risk if the business attempts to scale in the wrong direction.</div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
     </div>
+
+    <div class="dots">
+      <div class="dot active" id="dot-0"></div>
+      <div class="dot" id="dot-1"></div>
+    </div>
+
   </div>
 
-  <!-- SLIDE 2: Facility Upgrade -->
-  <div class="slide" id="slide-1">
-    
-    <div class="hero">
-      <div class="hero-left">
-        <div class="title-tag">
-          <span>Strategy 02</span>
-        </div>
-        <h1>Facility Upgrade</h1>
-      </div>
-      <div class="hero-right">
-        <p>Investing money to <strong>improve your company's</strong> existing infrastructure, equipment, and operating systems.</p>
-        <div class="hero-icon">🏢</div>
-      </div>
-    </div>
-
-    <div class="content-grid">
-      
-      <!-- Card 1 -->
-      <div class="card">
-        <div class="card-num">01</div>
-        <div class="card-header">
-          <div class="card-header-icon">📍</div>
-          <h2>Where to Upgrade?</h2>
-        </div>
-        <div class="list-container">
-          <div class="list-item">
-            <div class="list-icon">📣</div>
-            <div class="list-content"><strong>Marketing</strong>Building an in-house production studio.</div>
-          </div>
-          <div class="list-item">
-            <div class="list-icon">🧮</div>
-            <div class="list-content"><strong>Finance</strong>Implementing an internal ERP software system.</div>
-          </div>
-          <div class="list-item">
-            <div class="list-icon">💻</div>
-            <div class="list-content"><strong>Tech</strong>Purchasing your own servers and IT infrastructure.</div>
-          </div>
-          <div class="list-item">
-            <div class="list-icon">🚚</div>
-            <div class="list-content"><strong>Op & Log</strong>Buying your own warehouses and delivery trucks.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 2 -->
-      <div class="card">
-        <div class="card-num">02</div>
-        <div class="card-header">
-          <div class="card-header-icon">🎯</div>
-          <h2>When to Upgrade?</h2>
-        </div>
-        <div class="list-container">
-          <div class="list-item">
-            <div class="list-icon">📈</div>
-            <div class="list-content"><strong>Preparation for Scale</strong>Daily operations are stable, and you are actively preparing to expand.</div>
-          </div>
-          <div class="list-item">
-            <div class="list-icon">🛠️</div>
-            <div class="list-content"><strong>Long-Term Investment</strong>Making a long-term investment to increase overall operational efficiency.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 3 -->
-      <div class="card">
-        <div class="card-num">03</div>
-        <div class="card-header">
-          <div class="card-header-icon">⚠️</div>
-          <h2>Tradeoffs</h2>
-        </div>
-        <div class="list-container">
-          <div class="list-item">
-            <div class="list-icon">1</div>
-            <div class="list-content"><strong>Upfront Capital</strong>Massive upfront investment costs are required.</div>
-          </div>
-          <div class="list-item">
-            <div class="list-icon">2</div>
-            <div class="list-content"><strong>Financial Risk</strong>High financial risk if the business attempts to scale in the wrong direction.</div>
-          </div>
-        </div>
-      </div>
-
-    </div>
+  <!-- ============ RIGHT: LOOPING VIDEO ============ -->
+  <div class="video-panel">
+    <video
+      id="sideVideo"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="auto">
+      <source src="https://raw.githubusercontent.com/IEC-CLUB/SuiteUp/main/When_to_Outsource_vs_When_to_Upgrade.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
   </div>
 
-</div>
-
-<div class="dots">
-  <div class="dot active" id="dot-0"></div>
-  <div class="dot" id="dot-1"></div>
 </div>
 
 <script>
-  const SLIDE_DURATION = 30000; 
-  const TRANSITION_DURATION = 600; 
+  const SLIDE_DURATION = 30000;
+  const TRANSITION_DURATION = 600;
   const TOTAL_SLIDES = 2;
 
   let current = 0;
@@ -597,7 +687,7 @@
     current = index % TOTAL_SLIDES;
     slides[current].classList.add('active');
     dots[current].classList.add('active');
-    
+
     progressBar.style.transition = 'none';
     progressBar.style.width = '0%';
     void progressBar.offsetWidth; // Force reflow
@@ -634,20 +724,32 @@
   for (let i = 0; i < SNOW_COUNT; i++) {
     const flake = document.createElement('div');
     flake.className = 'snow-flake';
-    const size = Math.random() * 4 + 1; // 1px to 5px
+    const size = Math.random() * 4 + 1;
     flake.style.width = `${size}px`;
     flake.style.height = `${size}px`;
-    flake.style.left = `${Math.random() * 100}vw`;
-    flake.style.animationDuration = `${Math.random() * 10 + 8}s`; // 8s to 18s
+    flake.style.left = `${Math.random() * 100}%`;
+    flake.style.animationDuration = `${Math.random() * 10 + 8}s`;
     flake.style.animationDelay = `${Math.random() * 10}s`;
-    // Make some flakes squares (tech style) and some circles
-    if (Math.random() > 0.6) flake.style.borderRadius = '0'; 
+    if (Math.random() > 0.6) flake.style.borderRadius = '0';
     snowContainer.appendChild(flake);
   }
 
-  // Kick off
+  // Kick off slideshow
   goTo(0);
   rafId = requestAnimationFrame(tick);
+
+  // Make extra sure the video keeps looping / autoplaying even if the
+  // browser pauses it (e.g. after a tab switch on some mobile browsers)
+  const video = document.getElementById('sideVideo');
+  video.addEventListener('ended', () => { video.currentTime = 0; video.play(); });
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) { video.play().catch(() => {}); }
+  });
+  video.play().catch(() => {
+    // Autoplay with sound blocked would land here; video is muted so this
+    // should not normally trigger, but retry once just in case.
+    setTimeout(() => video.play().catch(() => {}), 300);
+  });
 </script>
 </body>
 </html>
