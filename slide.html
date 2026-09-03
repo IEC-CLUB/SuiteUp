@@ -53,6 +53,29 @@
     pointer-events: none;
   }
 
+  /* Floating Tech Snow */
+  .snow-container {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .snow-flake {
+    position: absolute;
+    top: -10px;
+    background: var(--blue-bright);
+    box-shadow: 0 0 8px var(--blue-bright), 0 0 14px rgba(91, 143, 255, 0.4);
+    opacity: 0;
+    animation: snow-fall linear infinite;
+  }
+  @keyframes snow-fall {
+    0%   { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 0; }
+    10%  { opacity: 0.8; }
+    90%  { opacity: 0.6; }
+    100% { transform: translateY(110vh) translateX(40px) rotate(360deg); opacity: 0; }
+  }
+
   /* Progress Bar */
   .progress-bar-wrap {
     position: fixed;
@@ -122,7 +145,7 @@
     pointer-events: auto;
   }
 
-  /* HERO HEADER (Top Banner) */
+  /* HERO HEADER */
   .hero {
     display: flex;
     justify-content: space-between;
@@ -181,6 +204,11 @@
   .hero-icon {
     font-size: 3.5rem;
     filter: drop-shadow(0 0 16px rgba(91, 143, 255, 0.6));
+    animation: float-icon 4s ease-in-out infinite;
+  }
+  @keyframes float-icon {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
   }
 
   /* DENSE GRID LAYOUT */
@@ -189,7 +217,7 @@
     grid-template-columns: 1fr 1fr 1fr;
     gap: 24px;
     flex: 1;
-    min-height: 0; /* Prevents grid blowout */
+    min-height: 0;
   }
 
   /* CARDS */
@@ -214,7 +242,6 @@
   .slide.active .card:nth-child(2) { animation-delay: 0.2s; }
   .slide.active .card:nth-child(3) { animation-delay: 0.3s; }
 
-  /* Card Watermark Number */
   .card-num {
     position: absolute;
     top: 10px;
@@ -253,27 +280,59 @@
   .list-container {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 24px;
     position: relative;
     flex: 1;
+    /* Removed padding-left to ensure perfect center alignment */
   }
   
-  /* Connecting line for timeline feel */
+  /* Static Timeline Line */
   .list-container::before {
     content: '';
     position: absolute;
-    left: 17px;
-    top: 15px;
-    bottom: 15px;
+    left: 18px; /* Half of 36px icon width */
+    top: 18px;
+    bottom: 18px;
     width: 1px;
     background: rgba(91, 143, 255, 0.15);
+    z-index: 1;
+    transform: translateX(-50%); /* Perfectly center the 1px line */
   }
+
+  /* Moving Progress Light Pulse */
+  .list-container::after {
+    content: '';
+    position: absolute;
+    left: 18px; /* Half of 36px icon width */
+    width: 4px;
+    height: 40px;
+    background: linear-gradient(to bottom, transparent, var(--blue-bright), transparent);
+    border-radius: 4px;
+    box-shadow: 0 0 15px var(--blue-bright), 0 0 5px #fff;
+    z-index: 2;
+    top: 0;
+    opacity: 0;
+    animation: scan-timeline 4s cubic-bezier(.45,.05,.55,.95) infinite;
+    transform: translateX(-50%); /* Perfectly center the 4px moving light */
+  }
+  @keyframes scan-timeline {
+    0%   { top: 0%; opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+
+  /* Stagger the start time of the pulse for each card */
+  .slide.active .card:nth-child(1) .list-container::after { animation-delay: 0.5s; }
+  .slide.active .card:nth-child(2) .list-container::after { animation-delay: 1.5s; }
+  .slide.active .card:nth-child(3) .list-container::after { animation-delay: 2.5s; }
 
   .list-item {
     display: flex;
     align-items: flex-start;
     gap: 16px;
     position: relative;
+    z-index: 3;
   }
 
   .list-icon {
@@ -284,14 +343,21 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 1rem;
     flex-shrink: 0;
-    z-index: 2;
     box-shadow: 0 0 0 4px rgba(2, 11, 46, 1);
     transition: all 0.3s ease;
+    animation: icon-dim 4s cubic-bezier(.45,.05,.55,.95) infinite;
   }
-  .list-item:hover .list-icon {
-    border-color: var(--blue-bright);
-    box-shadow: 0 0 0 4px rgba(2, 11, 46, 1), 0 0 12px rgba(91, 143, 255, 0.4);
+  
+  /* Flashing Icons synced with the passing light */
+  @keyframes icon-dim {
+    0%, 100% { border-color: var(--blue-deep); box-shadow: 0 0 0 4px rgba(2, 11, 46, 1); }
+    10%, 90% { border-color: var(--blue-bright); box-shadow: 0 0 0 4px rgba(2, 11, 46, 1), 0 0 15px var(--blue-bright); }
   }
+
+  .list-item:nth-child(1) .list-icon { animation-delay: 0.6s; }
+  .list-item:nth-child(2) .list-icon { animation-delay: 1.2s; }
+  .list-item:nth-child(3) .list-icon { animation-delay: 1.8s; }
+  .list-item:nth-child(4) .list-icon { animation-delay: 2.4s; }
 
   .list-content {
     padding-top: 6px;
@@ -309,12 +375,10 @@
     letter-spacing: 0.5px;
   }
 
-  /* Specific tweaks for Tradeoff numbers */
   .card:nth-child(3) .list-icon {
     background: var(--blue-deep);
     color: #fff;
     font-weight: 800;
-    border-color: var(--blue-bright);
   }
 
   @media (max-width: 1100px) {
@@ -325,6 +389,9 @@
 </style>
 </head>
 <body>
+
+<!-- Floating Tech Snow Background -->
+<div class="snow-container" id="snowContainer"></div>
 
 <div class="progress-bar-wrap">
   <div class="progress-bar" id="progressBar"></div>
@@ -560,6 +627,23 @@
     if (e.key === 'ArrowRight' || e.key === ' ') goTo(current + 1);
     if (e.key === 'ArrowLeft') goTo((current - 1 + TOTAL_SLIDES) % TOTAL_SLIDES);
   });
+
+  // Generate Floating Tech Snow
+  const snowContainer = document.getElementById('snowContainer');
+  const SNOW_COUNT = 45;
+  for (let i = 0; i < SNOW_COUNT; i++) {
+    const flake = document.createElement('div');
+    flake.className = 'snow-flake';
+    const size = Math.random() * 4 + 1; // 1px to 5px
+    flake.style.width = `${size}px`;
+    flake.style.height = `${size}px`;
+    flake.style.left = `${Math.random() * 100}vw`;
+    flake.style.animationDuration = `${Math.random() * 10 + 8}s`; // 8s to 18s
+    flake.style.animationDelay = `${Math.random() * 10}s`;
+    // Make some flakes squares (tech style) and some circles
+    if (Math.random() > 0.6) flake.style.borderRadius = '0'; 
+    snowContainer.appendChild(flake);
+  }
 
   // Kick off
   goTo(0);
