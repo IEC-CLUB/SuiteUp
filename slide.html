@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Outsource & Facility Upgrade</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #020b2e;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Progress bar */
+  .progress-bar-wrap {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: rgba(255,255,255,0.12);
+    z-index: 100;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #5b8fff, #a0c4ff);
+    width: 0%;
+    transition: width linear;
+  }
+
+  /* Slide dots */
+  .dots {
+    position: fixed;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 100;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    transition: background 0.3s;
+  }
+  .dot.active { background: #5b8fff; }
+
+  /* Slides container */
+  .slides {
+    position: relative;
+    flex: 1;
+    width: 100%;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.7s ease;
+    pointer-events: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 16px;
+    padding: 28px 28px 48px 28px;
+  }
+  .slide.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Slide backgrounds */
+  .slide-1 { background: radial-gradient(ellipse at 30% 40%, #0a1a6e 0%, #020b2e 70%); }
+  .slide-2 { background: radial-gradient(ellipse at 70% 30%, #071460 0%, #020b2e 70%); }
+
+  /* Hero block (top-left) */
+  .hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px 10px 20px 0;
+  }
+  .title-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #1a3a9e, #1e4fc7);
+    border-radius: 10px;
+    padding: 12px 20px;
+    margin-bottom: 24px;
+    width: fit-content;
+  }
+  .title-tag h1 {
+    font-size: 2.4rem;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+  .title-tag .icon { font-size: 2rem; }
+  .hero p {
+    font-size: 1.18rem;
+    color: #ccd9ff;
+    line-height: 1.65;
+    max-width: 420px;
+  }
+  .hero p strong {
+    color: #6fa3ff;
+    font-weight: 700;
+  }
+
+  /* Cards */
+  .card {
+    background: rgba(10, 28, 100, 0.55);
+    border: 1px solid rgba(91, 143, 255, 0.18);
+    border-radius: 14px;
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .card h2 {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #6fa3ff;
+    margin-bottom: 4px;
+  }
+
+  /* Where-to list */
+  .where-list { display: flex; flex-direction: column; gap: 10px; }
+  .where-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(91,143,255,0.13);
+  }
+  .where-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .where-icon {
+    width: 38px; height: 38px;
+    background: #1a3aad;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.05rem;
+    flex-shrink: 0;
+  }
+  .where-item .label {
+    font-weight: 700;
+    color: #6fa3ff;
+    margin-right: 4px;
+  }
+  .where-item span { color: #ccd9ff; font-size: 0.97rem; }
+
+  /* When list */
+  .when-list { display: flex; flex-direction: column; gap: 12px; }
+  .when-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(91,143,255,0.13);
+  }
+  .when-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .when-icon {
+    width: 38px; height: 38px;
+    background: #1a3aad;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.05rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .when-item p { color: #ccd9ff; font-size: 0.97rem; line-height: 1.5; }
+  .when-item p strong { color: #6fa3ff; }
+
+  /* Tradeoffs */
+  .tradeoff-list { display: flex; flex-direction: column; gap: 12px; }
+  .tradeoff-item {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(91,143,255,0.13);
+  }
+  .tradeoff-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .tradeoff-num {
+    width: 34px; height: 34px;
+    background: #1a3aad;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; color: #fff; font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .tradeoff-item p { color: #ccd9ff; font-size: 0.97rem; line-height: 1.5; }
+  .tradeoff-item p strong { color: #6fa3ff; }
+</style>
+</head>
+<body>
+
+<div class="progress-bar-wrap">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<div class="slides">
+
+  <!-- SLIDE 1: Outsource -->
+  <div class="slide slide-1 active" id="slide-0">
+    <div class="hero">
+      <div class="title-tag">
+        <h1>Outsource</h1>
+        <span class="icon">🤝</span>
+      </div>
+      <p>Hiring an <strong>external partner</strong> to handle a portion of the workload instead of building an internal, in-house team.</p>
+    </div>
+
+    <div class="card">
+      <h2>Where to Outsource?</h2>
+      <div class="where-list">
+        <div class="where-item">
+          <div class="where-icon">📣</div>
+          <span><span class="label">Marketing:</span> Hiring an external ad agency.</span>
+        </div>
+        <div class="where-item">
+          <div class="where-icon">🧮</div>
+          <span><span class="label">Finance:</span> Using outside accountants or auditors.</span>
+        </div>
+        <div class="where-item">
+          <div class="where-icon">💻</div>
+          <span><span class="label">Tech:</span> Hiring an external developer team.</span>
+        </div>
+        <div class="where-item">
+          <div class="where-icon">🚚</div>
+          <span><span class="label">Op&Log:</span> Using a 3PL (Third-Party Logistics) provider.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>When to Outsource?</h2>
+      <div class="when-list">
+        <div class="when-item">
+          <div class="when-icon">⏰</div>
+          <p>Your current team is heavily <strong>limited on time.</strong></p>
+        </div>
+        <div class="when-item">
+          <div class="when-icon">⭐</div>
+          <p>Your current team lacks the specific, <strong>specialized expertise</strong> needed for the task.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Tradeoffs</h2>
+      <div class="tradeoff-list">
+        <div class="tradeoff-item">
+          <div class="tradeoff-num">1</div>
+          <p>High ongoing <strong>service</strong> and <strong>rental fees.</strong></p>
+        </div>
+        <div class="tradeoff-item">
+          <div class="tradeoff-num">2</div>
+          <p>Your business becomes <strong>dependent</strong> on an outside <strong>partner's performance.</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: Facility Upgrade -->
+  <div class="slide slide-2" id="slide-1">
+    <div class="hero">
+      <div class="title-tag">
+        <h1>Facility Upgrade</h1>
+        <span class="icon">🏢</span>
+      </div>
+      <p>Investing money to <strong>improve your company's</strong> existing infrastructure, equipment, and operating systems.</p>
+    </div>
+
+    <div class="card">
+      <h2>Where to Upgrade?</h2>
+      <div class="where-list">
+        <div class="where-item">
+          <div class="where-icon">📣</div>
+          <span><span class="label">Marketing:</span> Building an in-house production studio.</span>
+        </div>
+        <div class="where-item">
+          <div class="where-icon">🧮</div>
+          <span><span class="label">Finance:</span> Implementing an internal ERP software system.</span>
+        </div>
+        <div class="where-item">
+          <div class="where-icon">💻</div>
+          <span><span class="label">Tech:</span> Purchasing your own servers and IT infrastructure.</span>
+        </div>
+        <div class="where-item">
+          <div class="where-icon">🚚</div>
+          <span><span class="label">Op&Log:</span> Buying your own warehouses and delivery trucks.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>When to Upgrade?</h2>
+      <div class="when-list">
+        <div class="when-item">
+          <div class="when-icon">⏰</div>
+          <p>Your daily operations are completely stable, and you are actively <strong>preparing to expand.</strong></p>
+        </div>
+        <div class="when-item">
+          <div class="when-icon">🎯</div>
+          <p>You are making a <strong>long-term investment</strong> to increase overall operational efficiency.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Tradeoffs</h2>
+      <div class="tradeoff-list">
+        <div class="tradeoff-item">
+          <div class="tradeoff-num">1</div>
+          <p>Massive upfront <strong>investment costs</strong> are required.</p>
+        </div>
+        <div class="tradeoff-item">
+          <div class="tradeoff-num">2</div>
+          <p>High <strong>financial risk</strong> if the business attempts to scale in the wrong direction.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="dots">
+  <div class="dot active" id="dot-0"></div>
+  <div class="dot" id="dot-1"></div>
+</div>
+
+<script>
+  const SLIDE_DURATION = 30000; // 30 seconds
+  const TRANSITION_DURATION = 700; // ms
+  const TOTAL_SLIDES = 2;
+
+  let current = 0;
+  let startTime = null;
+  let rafId = null;
+
+  const slides = document.querySelectorAll('.slide');
+  const dots = document.querySelectorAll('.dot');
+  const progressBar = document.getElementById('progressBar');
+
+  function goTo(index) {
+    slides[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    current = index % TOTAL_SLIDES;
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+    progressBar.style.transition = 'none';
+    progressBar.style.width = '0%';
+    // Force reflow before re-enabling transition
+    void progressBar.offsetWidth;
+    progressBar.style.transition = `width ${SLIDE_DURATION}ms linear`;
+    progressBar.style.width = '100%';
+    startTime = performance.now();
+  }
+
+  function tick(ts) {
+    if (!startTime) startTime = ts;
+    const elapsed = ts - startTime;
+    if (elapsed >= SLIDE_DURATION + TRANSITION_DURATION) {
+      goTo(current + 1);
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+
+  // Kick off
+  goTo(0);
+  rafId = requestAnimationFrame(tick);
+</script>
+</body>
+</html>
